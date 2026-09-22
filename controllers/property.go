@@ -23,8 +23,16 @@ func (p *PropertyController) Get() {
 }
 
 func (p *PropertyController) GetByID(){
-	p.Data["json"] = map[string]string{
-		"message":"Get property by ID working",
+	id:=p.Ctx.Input.Param(":id")
+	property, found := services.GetPropertyByID(id)
+	if !found{
+		p.Ctx.ResponseWriter.WriteHeader(404)
+		p.Data["json"]=map[string]string{
+			"Error":"Property not found",
+		}
+		p.ServeJSON()
+		return
 	}
+	p.Data["json"]=property
 	p.ServeJSON()
 }
