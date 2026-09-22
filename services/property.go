@@ -62,3 +62,12 @@ func TransformProperty(source models.SourceProperty,) models.PropertyResponse{
 	}
 	return response
 }
+
+func GetAllProperties() []models.PropertyResponse{
+	responses:=make([]models.PropertyResponse, 0)
+	for _,property:=range Properties{
+		response:=TransformProperty(property)
+		responses = append(responses, response)
+	}
+	return responses
+}

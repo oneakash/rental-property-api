@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"rental-property-api/services"
+
 	"github.com/beego/beego/v2/server/web"
 )
 
@@ -9,8 +11,12 @@ type PropertyController struct {
 }
 
 func (p *PropertyController) Get() {
-	p.Data["json"] = map[string]string{
-		"message": "API working",
+	properties:=services.GetAllProperties()
+	p.Data["json"] = map[string]interface{}{
+		"Result":map[string]interface{}{
+			"Count":len(properties),
+			"Items":properties,
+		},
 	}
 	p.ServeJSON()
 }
