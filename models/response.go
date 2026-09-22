@@ -4,10 +4,10 @@ type PropertyResponse struct{
 	Feed int `json:"Feed"`
 	Published bool `json:"Published"`
 	GeoInfo GeoInfo `json:"GeoInfo"`
-	Property PropertyInfo `json:"GeoInfo"`
+	Property PropertyInfo `json:"Property"`
 }
 type GeoInfo struct{
-	Breadcrumbs []Breadcrumbs `json:"Breadcrumbs"`
+	Breadcrumbs []Breadcrumb `json:"Breadcrumbs"`
 	City string `json:"City"`
 	Country string `json:"Country"`
 	CountryCode string `json:"CountryCode"`
@@ -18,7 +18,7 @@ type GeoInfo struct{
 	State string `json:"State"`
 	StateAbbr string `json:"StateAbbr"`
 }
-type Breadcrumbs struct{
+type Breadcrumb struct{
 	LocationID string `json:"LocationID"`
 	Name string `json:"Name"`
 	Type string `json:"Type"`
@@ -42,5 +42,5 @@ type CountInfo struct{
 }
 type ImageInfo struct{
 	Count int `json:"Count"`
-	Images []string `json:"Images`
+	Images []string `json:"Images"`
 }

@@ -11,7 +11,8 @@ type PropertyController struct {
 }
 
 func (p *PropertyController) Get() {
-	properties:=services.GetAllProperties()
+	limit:=p.GetString("limit")
+	properties:=services.GetAllProperties(limit)
 	p.Data["json"] = map[string]interface{}{
 		"Result":map[string]interface{}{
 			"Count":len(properties),

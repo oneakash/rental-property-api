@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"rental-property-api/models"
+	"strconv"
 )
 var Properties []models.SourceProperty
 func LoadProperties() error{
@@ -32,6 +33,7 @@ func TransformProperty(source models.SourceProperty,) models.PropertyResponse{
 		Feed: source.Feed,
 		Published: source.Published,
 		GeoInfo: models.GeoInfo{
+			Breadcrumbs: parseCategories(source.Categories),
 			City: source.City,
 			Country: source.Country,
 			CountryCode: source.CountryCode,
@@ -39,6 +41,8 @@ func TransformProperty(source models.SourceProperty,) models.PropertyResponse{
 			LocationID: source.LocationID,
 			State: source.State,
 			StateAbbr: source.StateAbbr,
+			Lat: getLatitude(source),
+			Lon: getLongitude(source),
 		},
 		Property: models.PropertyInfo{
 			Amenities: source.Amenities,
@@ -62,12 +66,47 @@ func TransformProperty(source models.SourceProperty,) models.PropertyResponse{
 	}
 	return response
 }
+func getLatitude(source models.SourceProperty,)float64{
+	if len(source.LonLat.Coordinates)>1{
+		return source.LonLat.Coordinates[1]
+	}
+	return 0
+}
+func getLongitude(source models.SourceProperty,)float64{
+	if len(source.LonLat.Coordinates)>0{
+		return source.LonLat.Coordinates[0]
+	}
+	return 0
+}
+func parseCategories(categoryString string,)[]models.Breadcrumb{
+	var breadcrumbs []models.Breadcrumb
+	err:=json.Unmarshal(
+		[]byte(categoryString),
+		&breadcrumbs,
+	)
+	if err!=nil{
+		return []models.Breadcrumb{}
+	}
+	return breadcrumbs
+}
 
-func GetAllProperties() []models.PropertyResponse{
+func GetAllProperties(limit string) []models.PropertyResponse{
 	responses:=make([]models.PropertyResponse, 0)
+	count:=0
+	limitValue:=0
+	if limit!=""{
+		value, err := strconv.Atoi(limit)
+		if err == nil{
+			limitValue = value
+		}
+	}
 	for _,property:=range Properties{
 		response:=TransformProperty(property)
 		responses = append(responses, response)
+		count++
+		if limitValue > 0 && count >= limitValue{
+			break
+		}
 	}
 	return responses
 }

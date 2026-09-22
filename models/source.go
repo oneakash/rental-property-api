@@ -3,9 +3,9 @@ type SourceProperty struct{
 	ID string `json:"id"`
 	Feed int `json:"feed"`
 	Country string `json:"country"`
-	CountryCode string `json:"country_code`
+	CountryCode string `json:"country_code"`
 	State string `json:"state"`
-	StateAbbr string `json:"state"`
+	StateAbbr string `json:"state_abbr"`
 	City string `json:"city"`
 	Display string `json:"display"`
 	LocationID string `json:"location_id"`
@@ -20,7 +20,11 @@ type SourceProperty struct{
 	ReviewScore float64 `json:"review_score_general"`
 	StarRating int `json:"star_rating"`
 	Amenities []string `json:"amenity_categories"`
+	LonLat LonLat `json:"lonlat"`
+	Categories string `json:"categories"`
 	Published bool `json:"published"`
 	Images []string `json:"images"`
-	Categories string `json:"categories"`
+}
+type LonLat struct{
+	Coordinates []float64 `json:"coordinates"`
 }
