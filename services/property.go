@@ -110,6 +110,7 @@ func GetAllProperties(limit string) []models.PropertyResponse{
 	}
 	return responses
 }
+
 func GetPropertyByID(id string)(models.PropertyResponse, bool){
 	for _, property:=range Properties{
 		if property.ID==id{

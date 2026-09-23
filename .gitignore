@@ -6,3 +6,4 @@ logs/
 *.test
 .idea/
 .vscode/
+rental-property-api
