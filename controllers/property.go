@@ -13,7 +13,15 @@ type PropertyController struct {
 }
 
 func (p *PropertyController) Get() {
-	filter := p.getFilter()
+	filter, err := p.getFilter()
+	if err!=nil{
+		p.Ctx.ResponseWriter.WriteHeader(400)
+		p.Data["json"]=map[string]string{
+			"Error":err.Error(),
+		}
+		p.ServeJSON()
+		return
+	}
 	properties := services.GetFilteredProperties(filter)
 	p.Data["json"] = map[string]interface{}{
 		"Result":map[string]interface{}{
@@ -38,72 +46,119 @@ func (p *PropertyController) GetByID(){
 	p.Data["json"]=property
 	p.ServeJSON()
 }
-func (p *PropertyController) getFilter() models.PropertyFilter {
+func (p *PropertyController) getFilter() (models.PropertyFilter, error, ){
 	filter := models.PropertyFilter{}
 	// min_price
-	minPrice := p.GetString("min_price")
-	if minPrice != "" {
-		value, err := strconv.ParseFloat(minPrice,64)
-		if err == nil {
-			filter.MinPrice=value
-		}
-
+	minPrice, err := parseFloatParam(
+		p.GetString("min_price"),
+		"min_price",
+	)
+	if err!=nil{
+		return  filter, err
 	}
+	if minPrice<0{
+		return filter, newParamError("min_price", "must be greater than or equal to 0")
+	}
+	filter.MinPrice = minPrice
 	//max_price
-	maxPrice := p.GetString("max_price")
-	if maxPrice != "" {
-		value, err := strconv.ParseFloat(maxPrice,64)
-		if err == nil {
-			filter.MaxPrice=value
-		}
+	maxPrice, err:=parseFloatParam(
+		p.GetString("max_price"),
+		"max_price",
+	)
+	if err != nil{
+		return filter, err
+	}
+	if maxPrice<0{
+		return filter, newParamError("max_price", "must be greater than or equal to 0")
+	}
+	filter.MaxPrice = maxPrice
+
+	//validate price relationship
+	if minPrice>0 && maxPrice>0 && minPrice>maxPrice{
+		return filter, newParamError(
+			"min_price",
+			"cannot be greater than max_price",
+		)
 	}
 	//min_star_rating
-	minStar:=p.GetString("min_star_rating")
-	if minStar!=""{
-		value, err:=strconv.Atoi(minStar)
-		if err == nil{
-			filter.MinStarRating = value
-		}
+	minStarRating, err:=parseIntParam(
+		p.GetString("min_star_rating"),
+		"min_star_rating",
+	)
+	if err!=nil{
+		return filter, err
 	}
+	if minStarRating < 0 || minStarRating > 5 {
+		return filter, newParamError(
+			"min_star_rating",
+			"must be between 1 and 5",
+		)
+	}
+	filter.MinStarRating = minStarRating
 	//min_review_score
-	minReviewScore:=p.GetString("min_review_score")
-	if minReviewScore!=""{
-		value, err:=strconv.ParseFloat(minReviewScore, 64)
-		if err == nil{
-			filter.MinReviewScore = value
-		}
+	minReviewScore, err := parseFloatParam(
+		p.GetString("min_review_score"),
+		"min_review_score",
+	)
+	if err!=nil{
+		return filter, err
 	}
+	if minReviewScore <0 || minReviewScore>10{
+		return filter, newParamError("min_review_score", "must be between 0 and 10")
+	}
+	filter.MinReviewScore=minReviewScore
 
 	//min_reviews
-	minReviews:=p.GetString("min_reviews")
-	if minReviews!=""{
-		value, err := strconv.Atoi(minReviews)
-		if err == nil{
-			filter.MinReviews=value
-		}
+	minReviews, err:=parseIntParam(
+		p.GetString("min_reviews"),
+		"min_reviews",
+	)
+	if err!=nil{
+		return filter, err
 	}
+	if minReviews <0{
+		return filter, newParamError("min_reviews", "must be greater than or equal to 0")
+	}
+	filter.MinReviews=minReviews
 
 	// published
-	published := p.GetString("published")
-	if published != ""{
-		value, err := strconv.ParseBool(published)
-		if err==nil{
-			filter.Published = &value
-		}
+	published, err:=parseBoolParam(
+		p.GetString("published"),
+		"published",
+	)
+	if err!=nil{
+		return filter,err
 	}
+	filter.Published=published
 	//property_type
 	propertyType := p.GetString("property_type")
 	if propertyType!=""{
-		filter.PropertyType=propertyType
+		switch propertyType{
+			case "Hotel",
+				"House",
+				"Apartment",
+				"Villa",
+				"Resort",
+				"Hostel":
+				filter.PropertyType=propertyType
+		default:
+			return filter, newParamError("property_type", "must be one of Hotel, House, Apartment, Villa, Resort, Hostel")
+		}
+		
 	}
 	//feed
-	feed:=p.GetString("feed")
-	if feed!=""{
-		value, err := strconv.Atoi(feed)
-		if err == nil{
-			filter.Feed=value
-		}
+	feed, err := parseIntParam(
+		p.GetString("feed"),
+		"feed",
+	)
+	if err!=nil{
+		return filter, err
 	}
+	if feed!=0 && feed!=11 && feed!=12 && feed!=22 &&
+		feed!=24{
+		return filter, newParamError("feed","must be one of 11, 12, 22, or 24")
+	}
+	filter.Feed = feed
 	// min_bedroom
 	minBedroom:=p.GetString("min_bedroom")
 	if minBedroom!=""{
@@ -127,5 +182,5 @@ func (p *PropertyController) getFilter() models.PropertyFilter {
 			filter.Limit=value
 		}
 	}
-	return filter
+	return filter, nil
 }
