@@ -78,6 +78,11 @@ http://localhost:8080
 
 # API Endpoints
 
+### Swagger
+```
+http://localhost:8080/swagger/
+```
+
 ## 1. Get All Properties
 
 ### Request
