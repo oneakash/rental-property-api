@@ -3,7 +3,6 @@ package controllers
 import (
 	"rental-property-api/models"
 	"rental-property-api/services"
-	"strconv"
 	"strings"
 	"github.com/beego/beego/v2/server/web"
 )
@@ -178,12 +177,18 @@ func (p *PropertyController) getFilter() (models.PropertyFilter, error, ){
 	}
 	filter.Feed = feed
 	// min_bedroom
-	minBedroom:=p.GetString("min_bedroom")
-	if minBedroom!=""{
-		value, err := strconv.Atoi(minBedroom)
-		if err == nil{
-			filter.MinBedroom = value
-		}
+	minBedroom, err:=parseIntParam(
+		p.GetString("min_bedroom"),
+		"min_bedroom",
+	)
+	if err!=nil{
+		return filter, err
+	}
+	if minBedroom<0{
+		return filter, newParamError(
+			"min_bedroom",
+			"must be greater than 0",
+		)
 	}
 
 	//amenities
@@ -193,12 +198,19 @@ func (p *PropertyController) getFilter() (models.PropertyFilter, error, ){
 	}
 
 	//limit
-	limit := p.GetString("limit")
-	if limit != "" {
-		value, err := strconv.Atoi(limit)
-		if err == nil {
-			filter.Limit=value
-		}
+	limit, err := parseIntParam(
+		p.GetString("limit"),
+		"limit",
+	)
+	if err!=nil{
+		return filter, err
 	}
+	if limit<0{
+		return filter, newParamError(
+			"limit",
+			"must be greater than 0",
+		)
+	}
+	filter.Limit=limit
 	return filter, nil
 }

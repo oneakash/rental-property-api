@@ -1,12 +1,16 @@
 package controllers
 
 import (
-	"fmt"
+	apierrors "rental-property-api/errors"
 	"strconv"
 )
 
 func newParamError(name string, message string)error{
-	return fmt.Errorf("%s: %s", name, message)
+	return &apierrors.APIError{
+		StatusCode: 400,
+		Field: name,
+		Message: message,
+	}
 }
 
 //validate float
@@ -16,8 +20,9 @@ func parseFloatParam(value string, name string,)(float64, error){
 	}
 	result, err:=strconv.ParseFloat(value, 64)
 	if err!=nil{
-		return 0, fmt.Errorf(
-			"invalid %s: must be a valid number", name,
+		return 0, newParamError(
+			name,
+			"must be a valid number",
 		)
 	}
 	return result, nil
@@ -32,8 +37,9 @@ func parseIntParam(
 	}
 	result, err:=strconv.Atoi(value)
 	if err!=nil{
-		return 0, fmt.Errorf(
-			"invalid %s: must be a valid integer", name,
+		return 0, newParamError(
+			name,
+			"must be a valid integer",
 		)
 	}
 	return result, nil
@@ -46,8 +52,9 @@ func parseBoolParam(value string, name string,)(*bool, error){
 	result, err:=strconv.ParseBool(value)
 	if err!=nil{
 		return nil,
-		fmt.Errorf(
-			"invalid %s: must be true or false", name,
+		newParamError(
+			name,
+			"must be true or false",
 		)
 	}
 	return &result, nil
