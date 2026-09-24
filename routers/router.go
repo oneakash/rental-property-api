@@ -1,7 +1,7 @@
 // @APIVersion 1.0.0
-// @Title beego Test API
+// @Title Rental Property API
 // @Description beego has a very cool tools to autogenerate documents for your API
-// @Contact astaxie@gmail.com
+// @Contact Md. Tazbir Hossain Akash
 // @TermsOfServiceUrl http://beego.me/
 // @License Apache 2.0
 // @LicenseUrl http://www.apache.org/licenses/LICENSE-2.0.html
@@ -16,15 +16,8 @@ import (
 func init() {
 	ns := beego.NewNamespace("/v1",
 		beego.NSNamespace("/properties",
-			beego.NSRouter(
-				"/",
+			beego.NSInclude(
 				&controllers.PropertyController{},
-				"get:Get",
-			),
-			beego.NSRouter(
-				"/:id",
-				&controllers.PropertyController{},
-				"get:GetByID",
 			),
 		),
 	)

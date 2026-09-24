@@ -12,6 +12,18 @@ type PropertyController struct {
 	web.Controller
 }
 
+// @Title Get All Properties
+// @Description Returns rental properties with optional filtering
+// @Param limit query int false "Maximum number of results"
+// @Param min_price query float64 false "Minimum price"
+// @Param max_price query float64 false "Maximum price"
+// @Param feed query int false "Property feed"
+// @Param published query bool false "Published status"
+// @Param property_type query string false "Property type"
+// @Param amenities query string false "Amenities separated by comma"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]string
+// @router / [get]
 func (p *PropertyController) Get() {
 	filter, err := p.getFilter()
 	if err!=nil{
@@ -32,6 +44,12 @@ func (p *PropertyController) Get() {
 	p.ServeJSON()
 }
 
+// @Title Get Property By ID
+// @Description Returns a single rental property
+// @Param id path string true "Property ID"
+// @Success 200 {object} models.PropertyResponse
+// @Failure 404 {object} map[string]string
+// @router /:id [get]
 func (p *PropertyController) GetByID(){
 	id:=p.Ctx.Input.Param(":id")
 	property, found := services.GetPropertyByID(id)

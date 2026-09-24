@@ -1,0 +1,194 @@
+swagger: "2.0"
+info:
+  title: Rental Property API
+  description: |
+    beego has a very cool tools to autogenerate documents for your API
+  version: 1.0.0
+  termsOfService: http://beego.me/
+  contact:
+    email: Md. Tazbir Hossain Akash
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+basePath: /v1
+paths:
+  /properties/:
+    get:
+      tags:
+      - properties
+      description: |-
+        Returns rental properties with optional filtering
+        <br>
+      operationId: PropertyController.Get All Properties
+      parameters:
+      - in: query
+        name: limit
+        description: Maximum number of results
+        type: integer
+        format: int64
+      - in: query
+        name: min_price
+        description: Minimum price
+        type: number
+        format: double
+      - in: query
+        name: max_price
+        description: Maximum price
+        type: number
+        format: double
+      - in: query
+        name: feed
+        description: Property feed
+        type: integer
+        format: int64
+      - in: query
+        name: published
+        description: Published status
+        type: boolean
+      - in: query
+        name: property_type
+        description: Property type
+        type: string
+      - in: query
+        name: amenities
+        description: Amenities separated by comma
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/map[string]interface{}'
+        "400":
+          description: '{object} map[string]string'
+  /properties/{id}:
+    get:
+      tags:
+      - properties
+      description: |-
+        Returns a single rental property
+        <br>
+      operationId: PropertyController.Get Property By ID
+      parameters:
+      - in: path
+        name: id
+        description: Property ID
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.PropertyResponse'
+        "404":
+          description: '{object} map[string]string'
+definitions:
+  map[string]interface{}:
+    title: map[string]interface{}
+    type: object
+  models.Breadcrumb:
+    title: Breadcrumb
+    type: object
+    properties:
+      LocationID:
+        type: string
+      Name:
+        type: string
+      Type:
+        type: string
+  models.CountInfo:
+    title: CountInfo
+    type: object
+    properties:
+      Bathroom:
+        type: integer
+        format: int64
+      Bedroom:
+        type: integer
+        format: int64
+      Occupancy:
+        type: integer
+        format: int64
+      Reviews:
+        type: integer
+        format: int64
+  models.GeoInfo:
+    title: GeoInfo
+    type: object
+    properties:
+      Breadcrumbs:
+        type: array
+        items:
+          $ref: '#/definitions/models.Breadcrumb'
+      City:
+        type: string
+      Country:
+        type: string
+      CountryCode:
+        type: string
+      Lat:
+        type: number
+        format: double
+      LocationID:
+        type: string
+      Lon:
+        type: number
+        format: double
+      Name:
+        type: string
+      State:
+        type: string
+      StateAbbr:
+        type: string
+  models.ImageInfo:
+    title: ImageInfo
+    type: object
+    properties:
+      Count:
+        type: integer
+        format: int64
+      Images:
+        type: array
+        items:
+          type: string
+  models.PropertyInfo:
+    title: PropertyInfo
+    type: object
+    properties:
+      Amenities:
+        type: array
+        items:
+          type: string
+      Counts:
+        $ref: '#/definitions/models.CountInfo'
+      Image:
+        $ref: '#/definitions/models.ImageInfo'
+      Name:
+        type: string
+      Price:
+        type: number
+        format: double
+      PropertyType:
+        type: string
+      ReviewScore:
+        type: number
+        format: double
+      Slug:
+        type: string
+      StarRating:
+        type: integer
+        format: int64
+  models.PropertyResponse:
+    title: PropertyResponse
+    type: object
+    properties:
+      Feed:
+        type: integer
+        format: int64
+      GeoInfo:
+        $ref: '#/definitions/models.GeoInfo'
+      ID:
+        type: string
+      Property:
+        $ref: '#/definitions/models.PropertyInfo'
+      Published:
+        type: boolean
